@@ -1,0 +1,4 @@
+{
+    "subject": "You've been invited to join {{ organization_name }}",
+    "required_params": ["inviter_email", "organization_name", "accept_link"]
+}

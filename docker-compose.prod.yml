@@ -1,0 +1,70 @@
+services:
+  api:
+    build: .
+    container_name: woopdi_fastapi_app
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - PYTHONPATH=/app
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - API_HOST=${API_HOST}
+      - GCP_SERVICE_ACCOUNT_KEY={GCP_SERVICE_FILE_CRED_JSON_LOCATION}
+      - GCP_BUCKET_NAME=${GCP_BUCKET_NAME}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_USER=${REDIS_USER}
+      - IS_PROD=${IS_PROD}
+    ports:
+      - "${API_HOST}:8000:8000"
+    volumes:
+      - ./:/app
+    networks:
+      - ai_network
+    command: ["./start.sh"]
+
+  celery_workers:
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    command: celery -A celery_app.celery_app worker --loglevel=info -c 4
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      - PYTHONPATH=/app
+      - CELERY_BROKER_URL=redis://${REDIS_HOST}:${REDIS_PORT}/0
+      - CELERY_RESULT_BACKEND=redis://${REDIS_HOST}:${REDIS_PORT}/0
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - GCP_SERVICE_ACCOUNT_KEY=/app/longivitateai-082b10d2c1e0.json
+      - GCP_BUCKET_NAME=${GCP_BUCKET_NAME}
+      - WEB_CLIENT_URL=${WEB_CLIENT_URL}
+      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_USER=${REDIS_USER}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - IS_PROD=${IS_PROD}
+    networks:
+      - ai_network
+
+networks:
+  ai_network:
+    driver: bridge

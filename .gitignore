@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+*.log
+
+# Virtual Environment
+venv/
+.env
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# System Files
+.DS_Store
+Thumbs.db
+
+
+# gcp key
+general-purpose-jobs-0216f73edded.json
