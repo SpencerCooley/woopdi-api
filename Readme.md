@@ -31,7 +31,7 @@ The application follows a distributed architecture pattern with the following ke
 ### 1. Clone Repository
 ```bash
 git clone <repository-url>
-cd woopdi
+cd woopdi-api
 ```
 
 ### 2. Environment Configuration
