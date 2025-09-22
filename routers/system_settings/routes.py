@@ -14,5 +14,7 @@ async def get_system_settings():
     Get the current system settings.
     """
     return SystemSettingsResponse(
-        auto_create_free_subscription=SystemSettings.AUTO_CREATE_FREE_SUBSCRIPTION
+        auto_create_free_subscription=SystemSettings.AUTO_CREATE_FREE_SUBSCRIPTION,
+        branding_logo_light_mode=SystemSettings.BRANIDING_LOGO_LIGHT_MODE,
+        branding_logo_dark_mode=SystemSettings.BRANDING_LOGO_DARK_MODE
     )
