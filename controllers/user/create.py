@@ -81,44 +81,7 @@ def create(db: Session, user: CreateUserObject, role: str = "user"):
             )
             db.add(db_solo_org_user_link)
 
-            # 4. Create the Stripe Customer for non-solo organization
-            try:
-                non_solo_stripe_customer = stripe.Customer.create(
-                    email=user.email,
-                    name=f"{user.email} - TEAM",
-                    metadata={"role": role, "org_type": "team"}
-                )
-            except stripe.error.StripeError as e:
-                if "email" in str(e).lower() and "already exists" in str(e).lower():
-                    # If customer with this email already exists, create with a unique email
-                    import uuid
-                    unique_suffix = str(uuid.uuid4())[:8]
-                    unique_email = f"{user.email.split('@')[0]}+team+{unique_suffix}@{user.email.split('@')[1]}"
-                    non_solo_stripe_customer = stripe.Customer.create(
-                        email=unique_email,
-                        name=f"{user.email} - TEAM",  # Keep original name
-                        metadata={"role": role, "org_type": "team", "original_email": user.email}
-                    )
-                else:
-                    raise e
 
-            # 5. Create the non-solo Organization for the user
-            db_non_solo_organization = Organization(
-                name=f"{db_user.email}'s Team",
-                is_solo=False,
-                org_owner=db_user.id,
-                stripe_customer_id=non_solo_stripe_customer.id
-            )
-            db.add(db_non_solo_organization)
-            db.flush()
-
-            # 6. Link the user to the non-solo organization with an ADMIN role
-            db_non_solo_org_user_link = OrganizationUser(
-                user_id=db_user.id,
-                organization_id=db_non_solo_organization.id,
-                role=OrganizationUserRole.ADMIN
-            )
-            db.add(db_non_solo_org_user_link)
 
             # 4. Create confirmation token and send email
             confirmation_token = generate_secure_token()
